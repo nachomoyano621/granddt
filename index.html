@@ -7,7 +7,7 @@
     <!-- Estilos inspirados en el diseño de clarin.com/grandt -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
+   <style>
         * {
             margin: 0;
             padding: 0;
@@ -186,31 +186,61 @@
             background: white;
         }
 
+        /* ===== COLUMNAS DEL MISMO TAMAÑO SIN QUE SE CORTE EL TEXTO ===== */
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            min-width: 600px;
+            table-layout: fixed;  /* Fija el ancho de las columnas */
         }
 
-        th {
-            background: #f8fafc;
-            padding: 1rem 0.8rem;
-            font-weight: 600;
-            color: #1f3e38;
-            border-bottom: 2px solid #e2e8f0;
-            text-align: center;
-        }
-
-        td {
+        /* Distribuir el espacio equitativamente entre las 3 columnas */
+        th, td {
+            width: 33.33%;
             padding: 0.9rem 0.6rem;
             text-align: center;
             border-bottom: 1px solid #f0f2f5;
             font-weight: 500;
+            word-wrap: break-word;      /* Permite cortar palabras si es necesario */
+            word-break: break-word;     /* Evita desbordes */
+            white-space: normal;        /* Permite que el texto haga saltos de línea */
+        }
+
+        /* La primera columna (Torneo) mantiene alineación a la izquierda */
+        td:first-child, th:first-child {
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 1rem 0.6rem;
+            font-weight: 600;
+            color: #1f3e38;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 0.9rem 0.6rem;
         }
 
         tr:hover td {
             background-color: #fefce8;
+        }
+
+        /* Ajuste para pantallas muy chicas (menos de 700px) */
+        @media (max-width: 700px) {
+            table {
+                table-layout: auto;  /* En móvil que se comporte flexible */
+                min-width: 500px;
+            }
+            th, td {
+                width: auto;
+                white-space: nowrap;  /* En móvil que no haga saltos raros */
+            }
+            td:first-child, th:first-child {
+                white-space: normal;  /* La columna torneo sí puede saltar */
+                min-width: 180px;
+            }
         }
 
         .player-name {
@@ -278,7 +308,7 @@
 
         .stat-title i {
             margin-right: 6px;
-}
+        }
     </style>
 </head>
 <body>
