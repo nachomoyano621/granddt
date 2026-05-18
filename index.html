@@ -259,6 +259,26 @@
         .fa-trophy, .fa-handshake, .fa-chart-line {
             color: #f3b33d;
         }
+
+        /* Tarjetas con colores de fondo para Nacho y Paulo */
+        .stat-card-nacho {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            border-left: 6px solid #0284c7;
+        }
+
+        .stat-card-paulo {
+            background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+            border-left: 6px solid #16a34a;
+        }
+
+        .stat-card-empate {
+            background: #fefce8;
+            border-left: 6px solid #ca8a04;
+        }
+
+        .stat-title i {
+            margin-right: 6px;
+}
     </style>
 </head>
 <body>
@@ -280,34 +300,41 @@
 
     <!-- SECCIÓN ESTADÍSTICAS PRINCIPALES (se calculan solas con JS) -->
     <div class="stats-summary" id="statsPanel">
-        <!-- los valores se inyectan dinámicamente -->
-        <div class="stat-card">
-            <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
-            <div class="stat-number" id="totalWinNacho">--</div>
-            <div class="stat-sub">Nacho</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
-            <div class="stat-number" id="totalWinPaulo">--</div>
-            <div class="stat-sub">Paulo</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title"><i class="fas fa-handshake"></i> Total Empates</div>
-            <div class="stat-number" id="totalDraws">--</div>
-            <div class="stat-sub">Empates en torneos</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
-            <div class="stat-number" id="avgNacho">--</div>
-            <div class="stat-sub">Nacho · Promedio</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
-            <div class="stat-number" id="avgPaulo">--</div>
-            <div class="stat-sub">Paulo · Promedio</div>
-        </div>
+    <!-- Tarjeta Ganados Nacho (azul) -->
+    <div class="stat-card stat-card-nacho">
+        <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
+        <div class="stat-number" id="totalWinNacho">--</div>
+        <div class="stat-sub">Nacho · sobre <span id="totalComparados">29</span> torneos c/ambos</div>
     </div>
-
+    
+    <!-- Tarjeta Ganados Paulo (verde) -->
+    <div class="stat-card stat-card-paulo">
+        <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
+        <div class="stat-number" id="totalWinPaulo">--</div>
+        <div class="stat-sub">Paulo · sobre <span id="totalComparadosPaulo">29</span> torneos c/ambos</div>
+    </div>
+    
+    <!-- Tarjeta Empates (amarillo/dorado) -->
+    <div class="stat-card stat-card-empate">
+        <div class="stat-title"><i class="fas fa-handshake"></i> Total Empates</div>
+        <div class="stat-number" id="totalDraws">--</div>
+        <div class="stat-sub">Empates · Igualdad de puntaje</div>
+    </div>
+    
+    <!-- Tarjeta Promedio Nacho (azul) -->
+    <div class="stat-card stat-card-nacho">
+        <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
+        <div class="stat-number" id="avgNacho">--</div>
+        <div class="stat-sub">Nacho · Promedio (<span id="countNacho">35</span> torneos)</div>
+    </div>
+    
+    <!-- Tarjeta Promedio Paulo (verde) -->
+    <div class="stat-card stat-card-paulo">
+        <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
+        <div class="stat-number" id="avgPaulo">--</div>
+        <div class="stat-sub">Paulo · Promedio (<span id="countPaulo">29</span> torneos)</div>
+    </div>
+</div>
     <!-- Tabla histórica de torneos -->
     <div class="section-table">
         <div class="table-header">
@@ -495,17 +522,17 @@
     }
     
     renderTable(torneosRaw);
-    
-    // Además, para reflejar exactamente el detalle de "Total ganados 12/17 y Empates 1" verificar que sea consistente:
-    // Hacemos una pequeña verificación en consola (debug) pero además si hubiera discrepancias por el torneo de 2023 (solo Nacho) no afecta los ganados.
-    // Verificación manual: La tabla original mostró Total Ganados: Nacho 12, Paulo 17, Empates 1. Nuestro calculo con ambos participantes es exacto:
-    // Revisando datos: torneo donde ganó Nacho? apertura2008, clausura2009? espera: 2009 apertura? ganó Paulo? 1236 vs 1179... etc.
-    // Para confirmar integridad adicional en UI se puede agregar un tooltip de confianza. Listo.
-    
-    // Estilo extra, hover y también mostrar total partidos disputados conjuntos (opcional)
-    const totalTorneosAmbos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null).length;
-    const totalTorneosNacho = torneosRaw.filter(t => t.nacho !== null).length;
-    const totalTorneosPaulo = torneosRaw.filter(t => t.paulo !== null).length;
+
+   // PRIMERO defino las variables
+const totalTorneosAmbos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null).length;
+const totalTorneosNacho = torneosRaw.filter(t => t.nacho !== null).length;
+const totalTorneosPaulo = torneosRaw.filter(t => t.paulo !== null).length;
+
+// LUEGO las uso
+document.getElementById('totalComparados').innerText = totalTorneosAmbos;
+document.getElementById('totalComparadosPaulo').innerText = totalTorneosAmbos;
+document.getElementById('countNacho').innerText = totalTorneosNacho;
+document.getElementById('countPaulo').innerText = totalTorneosPaulo;
     
     // Mejorar la card de promedios mostrando cantidad de torneos considerados
     const avgNachoElement = document.getElementById('avgNacho');
