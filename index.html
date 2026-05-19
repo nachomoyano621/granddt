@@ -148,7 +148,6 @@
             margin-top: 5px;
         }
 
-        /* Contenedor del gráfico - responsive */
         .graph-container {
             padding: 1rem;
             background: var(--bg-container);
@@ -156,12 +155,6 @@
             border-bottom: 1px solid var(--border-color);
         }
         
-        /* En desktop: gráfico normal sin scroll */
-        .chart-wrapper {
-            width: 100%;
-        }
-        
-        /* En móvil: activamos scroll horizontal */
         @media (max-width: 768px) {
             .chart-wrapper {
                 overflow-x: auto;
@@ -169,13 +162,12 @@
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin;
                 cursor: grab;
-                width: 100%;
             }
             .chart-wrapper:active {
                 cursor: grabbing;
             }
             .chart-inner {
-                min-width: 700px;
+                min-width: 800px;
                 width: max-content;
             }
             .scroll-hint {
@@ -183,7 +175,6 @@
             }
         }
         
-        /* En desktop: ocultamos el hint */
         .scroll-hint {
             display: none;
             text-align: center;
@@ -196,13 +187,13 @@
         }
         
         canvas {
-            max-height: 300px;
+            max-height: 320px;
             width: 100% !important;
         }
         
         @media (max-width: 550px) {
             canvas {
-                max-height: 240px;
+                max-height: 250px;
             }
         }
 
@@ -305,7 +296,6 @@
             border-left: 6px solid #fbbf24;
         }
         
-        /* Barra de scroll personalizada en móvil */
         @media (max-width: 768px) {
             .chart-wrapper::-webkit-scrollbar {
                 height: 5px;
@@ -366,7 +356,6 @@
         </div>
     </div>
 
-    <!-- GRÁFICO: en desktop normal, en móvil con scroll -->
     <div class="graph-container">
         <div class="chart-wrapper" id="chartWrapper">
             <div class="chart-inner" id="chartInner">
@@ -495,7 +484,7 @@
     document.getElementById('countNacho').innerText = totalTorneosNacho;
     document.getElementById('countPaulo').innerText = totalTorneosPaulo;
 
-    // ========== GRÁFICO ==========
+    // ========== GRÁFICO CON TODOS LOS LABELS ==========
     const torneosConDatos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null);
     const labels = torneosConDatos.map(t => t.torneo);
     const nachoData = torneosConDatos.map(t => t.nacho);
@@ -557,10 +546,21 @@
                 x: {
                     ticks: { 
                         font: { size: isMobile ? 8 : 10 },
-                        maxRotation: isMobile ? 45 : 30,
-                        minRotation: isMobile ? 45 : 30,
-                        autoSkip: true,
-                        maxTicksLimit: isMobile ? 12 : 25
+                        maxRotation: isMobile ? 90 : 35,
+                        minRotation: isMobile ? 90 : 35,
+                        autoSkip: false,  // ← MUY IMPORTANTE: muestra TODOS los labels
+                        callback: function(val, index) {
+                            // En móvil, mostrar solo algunos para no saturar
+                            if (isMobile) {
+                                const year = parseInt(labels[index].match(/\d{4}/)?.[0] || 0);
+                                // Mostrar solo los años pares o cada 2 torneos
+                                if (index % 2 === 0 || labels[index].includes('Apertura')) {
+                                    return labels[index];
+                                }
+                                return '';
+                            }
+                            return labels[index];
+                        }
                     }
                 }
             }
@@ -585,20 +585,28 @@
         chart.update();
     }
 
-    // Detectar resize para ajustar el gráfico
     window.addEventListener('resize', () => {
         const newIsMobile = window.innerWidth <= 768;
         chart.options.plugins.legend.labels.font.size = newIsMobile ? 11 : 13;
         chart.options.scales.x.ticks.font.size = newIsMobile ? 8 : 10;
         chart.options.scales.y.ticks.font.size = newIsMobile ? 9 : 11;
-        chart.options.scales.x.ticks.maxRotation = newIsMobile ? 45 : 30;
-        chart.options.scales.x.ticks.minRotation = newIsMobile ? 45 : 30;
-        chart.options.scales.x.ticks.maxTicksLimit = newIsMobile ? 12 : 25;
+        chart.options.scales.x.ticks.maxRotation = newIsMobile ? 90 : 35;
+        chart.options.scales.x.ticks.minRotation = newIsMobile ? 90 : 35;
         chart.options.scales.y.title.display = window.innerWidth > 768;
+        
+        // Actualizar callback para móvil/desktop
+        chart.options.scales.x.ticks.callback = function(val, index) {
+            if (newIsMobile) {
+                if (index % 2 === 0 || labels[index].includes('Apertura')) {
+                    return labels[index];
+                }
+                return '';
+            }
+            return labels[index];
+        };
         chart.update();
     });
 
-    // ========== MODO OSCURO ==========
     const darkToggle = document.getElementById('darkModeToggle');
     darkToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark');
