@@ -148,7 +148,7 @@
             margin-top: 5px;
         }
 
-        /* Contenedor del gráfico CON SCROLL HORIZONTAL */
+        /* Contenedor del gráfico - responsive */
         .graph-container {
             padding: 1rem;
             background: var(--bg-container);
@@ -156,56 +156,53 @@
             border-bottom: 1px solid var(--border-color);
         }
         
-        /* Wrapper con scroll horizontal */
-        .chart-scroll-wrapper {
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;  /* Scroll suave en iOS */
-            scrollbar-width: thin;               /* Barra más fina en Firefox */
-            cursor: grab;
+        /* En desktop: gráfico normal sin scroll */
+        .chart-wrapper {
             width: 100%;
         }
         
-        .chart-scroll-wrapper:active {
-            cursor: grabbing;
+        /* En móvil: activamos scroll horizontal */
+        @media (max-width: 768px) {
+            .chart-wrapper {
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                cursor: grab;
+                width: 100%;
+            }
+            .chart-wrapper:active {
+                cursor: grabbing;
+            }
+            .chart-inner {
+                min-width: 700px;
+                width: max-content;
+            }
+            .scroll-hint {
+                display: flex !important;
+            }
         }
         
-        /* Contenedor interno con ancho fijo para permitir scroll */
-        .chart-inner {
-            min-width: 800px;   /* Ancho mínimo para que el gráfico sea desplazable */
-            width: max-content;
-        }
-        
-        canvas {
-            width: 100% !important;
-            height: auto !important;
-            max-height: 280px;
-        }
-        
-        /* Instrucción para el usuario */
+        /* En desktop: ocultamos el hint */
         .scroll-hint {
+            display: none;
             text-align: center;
             font-size: 0.65rem;
             color: #64748b;
             margin-top: 0.5rem;
-            display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
-        .scroll-hint i {
-            font-size: 0.8rem;
-        }
-        body.dark .scroll-hint {
-            color: #94a3b8;
+        
+        canvas {
+            max-height: 300px;
+            width: 100% !important;
         }
         
         @media (max-width: 550px) {
-            .chart-inner {
-                min-width: 700px;
-            }
             canvas {
-                max-height: 220px;
+                max-height: 240px;
             }
         }
 
@@ -308,17 +305,19 @@
             border-left: 6px solid #fbbf24;
         }
         
-        /* Ocultar barra de scroll en Chrome/Safari (opcional, más limpio visualmente) */
-        .chart-scroll-wrapper::-webkit-scrollbar {
-            height: 6px;
-        }
-        .chart-scroll-wrapper::-webkit-scrollbar-track {
-            background: var(--border-color);
-            border-radius: 10px;
-        }
-        .chart-scroll-wrapper::-webkit-scrollbar-thumb {
-            background: #0284c7;
-            border-radius: 10px;
+        /* Barra de scroll personalizada en móvil */
+        @media (max-width: 768px) {
+            .chart-wrapper::-webkit-scrollbar {
+                height: 5px;
+            }
+            .chart-wrapper::-webkit-scrollbar-track {
+                background: var(--border-color);
+                border-radius: 10px;
+            }
+            .chart-wrapper::-webkit-scrollbar-thumb {
+                background: #0284c7;
+                border-radius: 10px;
+            }
         }
     </style>
 </head>
@@ -367,14 +366,14 @@
         </div>
     </div>
 
-    <!-- GRÁFICO CON SCROLL HORIZONTAL -->
+    <!-- GRÁFICO: en desktop normal, en móvil con scroll -->
     <div class="graph-container">
-        <div class="chart-scroll-wrapper" id="chartScrollWrapper">
-            <div class="chart-inner">
+        <div class="chart-wrapper" id="chartWrapper">
+            <div class="chart-inner" id="chartInner">
                 <canvas id="evolutionChart"></canvas>
             </div>
         </div>
-        <div class="scroll-hint">
+        <div class="scroll-hint" id="scrollHint">
             <i class="fas fa-arrows-alt-h"></i>
             <span>Desliza hacia los lados para ver todo el gráfico</span>
             <i class="fas fa-hand-peace"></i>
@@ -496,7 +495,7 @@
     document.getElementById('countNacho').innerText = totalTorneosNacho;
     document.getElementById('countPaulo').innerText = totalTorneosPaulo;
 
-    // ========== GRÁFICO CON SCROLL HORIZONTAL ==========
+    // ========== GRÁFICO ==========
     const torneosConDatos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null);
     const labels = torneosConDatos.map(t => t.torneo);
     const nachoData = torneosConDatos.map(t => t.nacho);
@@ -518,8 +517,8 @@
                     borderWidth: 2,
                     tension: 0.3,
                     fill: true,
-                    pointRadius: isMobile ? 2 : 3,
-                    pointHoverRadius: isMobile ? 5 : 6
+                    pointRadius: isMobile ? 2 : 4,
+                    pointHoverRadius: isMobile ? 5 : 7
                 },
                 {
                     label: 'Paulo',
@@ -529,8 +528,8 @@
                     borderWidth: 2,
                     tension: 0.3,
                     fill: true,
-                    pointRadius: isMobile ? 2 : 3,
-                    pointHoverRadius: isMobile ? 5 : 6
+                    pointRadius: isMobile ? 2 : 4,
+                    pointHoverRadius: isMobile ? 5 : 7
                 }
             ]
         },
@@ -541,37 +540,29 @@
                 tooltip: {
                     callbacks: {
                         label: (context) => `${context.dataset.label}: ${context.raw} pts`
-                    },
-                    bodyFont: { size: isMobile ? 11 : 12 },
-                    titleFont: { size: isMobile ? 11 : 12 }
+                    }
                 },
                 legend: {
                     position: 'top',
-                    labels: { 
-                        font: { size: isMobile ? 10 : 12 },
-                        boxWidth: isMobile ? 10 : 12
-                    }
+                    labels: { font: { size: isMobile ? 11 : 13 } }
                 }
             },
             scales: {
                 y: {
-                    title: { display: !isMobile, text: 'Puntaje', font: { size: 10 } },
-                    ticks: { font: { size: isMobile ? 9 : 10 } }
+                    title: { display: window.innerWidth > 768, text: 'Puntaje' },
+                    ticks: { font: { size: isMobile ? 9 : 11 } },
+                    min: 300,
+                    max: 1700
                 },
                 x: {
                     ticks: { 
-                        font: { size: isMobile ? 8 : 9 },
-                        maxRotation: isMobile ? 45 : 45,
-                        minRotation: isMobile ? 45 : 45,
+                        font: { size: isMobile ? 8 : 10 },
+                        maxRotation: isMobile ? 45 : 30,
+                        minRotation: isMobile ? 45 : 30,
                         autoSkip: true,
-                        maxTicksLimit: 20
+                        maxTicksLimit: isMobile ? 12 : 25
                     }
                 }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
             }
         }
     });
@@ -593,6 +584,19 @@
         }
         chart.update();
     }
+
+    // Detectar resize para ajustar el gráfico
+    window.addEventListener('resize', () => {
+        const newIsMobile = window.innerWidth <= 768;
+        chart.options.plugins.legend.labels.font.size = newIsMobile ? 11 : 13;
+        chart.options.scales.x.ticks.font.size = newIsMobile ? 8 : 10;
+        chart.options.scales.y.ticks.font.size = newIsMobile ? 9 : 11;
+        chart.options.scales.x.ticks.maxRotation = newIsMobile ? 45 : 30;
+        chart.options.scales.x.ticks.minRotation = newIsMobile ? 45 : 30;
+        chart.options.scales.x.ticks.maxTicksLimit = newIsMobile ? 12 : 25;
+        chart.options.scales.y.title.display = window.innerWidth > 768;
+        chart.update();
+    });
 
     // ========== MODO OSCURO ==========
     const darkToggle = document.getElementById('darkModeToggle');
