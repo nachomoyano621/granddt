@@ -7,34 +7,58 @@
     <!-- Estilos inspirados en el diseño de clarin.com/grandt -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-   <style>
+    <!-- Chart.js para el gráfico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f1f5f9;
-            color: #0f172a;
-            padding: 2rem 1rem;
+        /* Modo oscuro - variables CSS */
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-container: white;
+            --text-color: #0f172a;
+            --border-color: #e9edf2;
+            --header-bg: linear-gradient(135deg, #0b2b26 0%, #1a4a3f 100%);
+            --table-header-bg: #f8fafc;
+            --footer-bg: #f9fbfd;
+            --card-bg: #ffffff;
         }
 
-        /* contenedor estilo gran dt - similar a paleta deportiva */
+        body.dark {
+            --bg-body: #0f172a;
+            --bg-container: #1e293b;
+            --text-color: #e2e8f0;
+            --border-color: #334155;
+            --header-bg: linear-gradient(135deg, #064e3b 0%, #0f3b2f 100%);
+            --table-header-bg: #334155;
+            --footer-bg: #1e293b;
+            --card-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-color);
+            padding: 2rem 1rem;
+            transition: background 0.3s, color 0.3s;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-container);
             border-radius: 32px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            transition: all 0.2s ease;
+            transition: background 0.3s;
         }
 
-        /* header con estilo "gran dt" */
         .hero {
-            background: linear-gradient(135deg, #0b2b26 0%, #1a4a3f 100%);
+            background: var(--header-bg);
             padding: 2rem 2rem 1.8rem 2rem;
             color: white;
             position: relative;
@@ -79,40 +103,45 @@
             margin-top: 6px;
         }
 
-        .badge-date {
+        /* Botón modo oscuro */
+        .dark-mode-toggle {
             background: rgba(255,255,255,0.2);
             backdrop-filter: blur(4px);
-            padding: 0.5rem 1rem;
+            border: none;
             border-radius: 100px;
+            padding: 0.5rem 1rem;
+            color: white;
             font-size: 0.85rem;
             font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
         }
 
-        /* stats resumen en tarjetas - automaticas */
         .stats-summary {
             display: flex;
             flex-wrap: wrap;
             gap: 1.5rem;
             padding: 2rem 2rem 0 2rem;
-            background: white;
+            background: var(--bg-container);
             justify-content: space-between;
         }
 
         .stat-card {
             flex: 1;
             min-width: 180px;
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 28px;
             padding: 1.2rem 1rem;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e9edf2;
+            border: 1px solid var(--border-color);
             transition: all 0.2s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            border-color: #cbd5e1;
-            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
         }
 
         .stat-title {
@@ -126,11 +155,14 @@
             align-items: center;
             gap: 8px;
         }
+        body.dark .stat-title {
+            color: #94a3b8;
+        }
 
         .stat-number {
             font-size: 2.4rem;
             font-weight: 800;
-            color: #0f2b25;
+            color: var(--text-color);
             line-height: 1.2;
         }
 
@@ -141,16 +173,17 @@
             font-weight: 500;
         }
 
-        .vs-divider {
-            background: #eef2ff;
-            border-radius: 60px;
-            padding: 0.2rem 0.8rem;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #1e4a3b;
+        /* Contenedor del gráfico */
+        .graph-container {
+            padding: 2rem;
+            background: var(--bg-container);
+            border-top: 1px solid var(--border-color);
+        }
+        canvas {
+            max-height: 350px;
+            width: 100%;
         }
 
-        /* tabla responsiva */
         .section-table {
             padding: 2rem;
         }
@@ -169,6 +202,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--text-color);
         }
 
         .legend {
@@ -178,105 +212,53 @@
             border-radius: 30px;
             color: #2c5f55;
         }
+        body.dark .legend {
+            background: #334155;
+            color: #86efac;
+        }
 
         .table-wrapper {
             overflow-x: auto;
             border-radius: 24px;
-            border: 1px solid #edf2f7;
-            background: white;
+            border: 1px solid var(--border-color);
+            background: var(--bg-container);
         }
 
-        /* ===== COLUMNAS DEL MISMO TAMAÑO SIN QUE SE CORTE EL TEXTO ===== */
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            table-layout: fixed;  /* Fija el ancho de las columnas */
+            table-layout: fixed;
         }
 
-        /* Distribuir el espacio equitativamente entre las 3 columnas */
         th, td {
             width: 33.33%;
             padding: 0.9rem 0.6rem;
             text-align: center;
-            border-bottom: 1px solid #f0f2f5;
+            border-bottom: 1px solid var(--border-color);
             font-weight: 500;
-            word-wrap: break-word;      /* Permite cortar palabras si es necesario */
-            word-break: break-word;     /* Evita desbordes */
-            white-space: normal;        /* Permite que el texto haga saltos de línea */
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            color: var(--text-color);
         }
 
-        /* La primera columna (Torneo) mantiene alineación a la izquierda */
         td:first-child, th:first-child {
             text-align: left;
         }
 
         th {
-            background: #f8fafc;
+            background: var(--table-header-bg);
             padding: 1rem 0.6rem;
             font-weight: 600;
-            color: #1f3e38;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        td {
-            padding: 0.9rem 0.6rem;
+            border-bottom: 2px solid var(--border-color);
         }
 
         tr:hover td {
             background-color: #fefce8;
         }
-
-        /* Ajuste para pantallas muy chicas (menos de 700px) */
-        @media (max-width: 700px) {
-            table {
-                table-layout: auto;  /* En móvil que se comporte flexible */
-                min-width: 500px;
-            }
-            th, td {
-                width: auto;
-                white-space: nowrap;  /* En móvil que no haga saltos raros */
-            }
-            td:first-child, th:first-child {
-                white-space: normal;  /* La columna torneo sí puede saltar */
-                min-width: 180px;
-            }
-        }
-
-        .player-name {
-            font-weight: 700;
-            background: #f1f5f9;
-            width: 110px;
-        }
-
-        .tourney-cell {
-            font-weight: 500;
-            text-align: left;
-            color: #1e293b;
-            background-color: #ffffff;
-        }
-
-        .score {
-            font-weight: 600;
-            color: #0f3b32;
-        }
-
-        .winner-badge {
-            background: #e6f7f2;
-            color: #136653;
-            border-radius: 24px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        footer {
-            background: #f9fbfd;
-            padding: 1.2rem 2rem;
-            text-align: center;
-            font-size: 0.75rem;
-            border-top: 1px solid #e9edf2;
-            color: #5b6e8c;
+        body.dark tr:hover td {
+            background-color: #334155;
         }
 
         @media (max-width: 700px) {
@@ -284,28 +266,58 @@
             .stat-number { font-size: 1.8rem; }
             .stats-summary { padding: 1.5rem 1rem 0 1rem; gap: 0.8rem; }
             .section-table { padding: 1.2rem; }
+            .graph-container { padding: 1rem; }
+            table { table-layout: auto; min-width: 500px; }
+            th, td { width: auto; white-space: nowrap; }
+            td:first-child, th:first-child { white-space: normal; min-width: 180px; }
+        }
+
+        .tourney-cell {
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .score {
+            font-weight: 600;
+        }
+
+        footer {
+            background: var(--footer-bg);
+            padding: 1.2rem 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            color: #5b6e8c;
         }
 
         .fa-trophy, .fa-handshake, .fa-chart-line {
             color: #f3b33d;
         }
 
-        /* Tarjetas con colores de fondo para Nacho y Paulo */
         .stat-card-nacho {
             background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
             border-left: 6px solid #0284c7;
         }
-
         .stat-card-paulo {
             background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
             border-left: 6px solid #16a34a;
         }
-
         .stat-card-empate {
             background: #fefce8;
             border-left: 6px solid #ca8a04;
         }
-
+        body.dark .stat-card-nacho {
+            background: linear-gradient(135deg, #0c4a6e 0%, #082f49 100%);
+            border-left: 6px solid #38bdf8;
+        }
+        body.dark .stat-card-paulo {
+            background: linear-gradient(135deg, #14532d 0%, #0a3622 100%);
+            border-left: 6px solid #4ade80;
+        }
+        body.dark .stat-card-empate {
+            background: #422006;
+            border-left: 6px solid #fbbf24;
+        }
         .stat-title i {
             margin-right: 6px;
         }
@@ -324,48 +336,43 @@
                     <p>Competencia Nacho vs Paulo | Torneos 2008 - 2026</p>
                 </div>
             </div>
-           
+            <button class="dark-mode-toggle" id="darkModeToggle">🌙 Modo oscuro</button>
         </div>
     </div>
 
-    <!-- SECCIÓN ESTADÍSTICAS PRINCIPALES (se calculan solas con JS) -->
     <div class="stats-summary" id="statsPanel">
-    <!-- Tarjeta Ganados Nacho (azul) -->
-    <div class="stat-card stat-card-nacho">
-        <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
-        <div class="stat-number" id="totalWinNacho">--</div>
-        <div class="stat-sub">Nacho · sobre <span id="totalComparados">29</span> torneos c/ambos</div>
+        <div class="stat-card stat-card-nacho">
+            <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
+            <div class="stat-number" id="totalWinNacho">--</div>
+            <div class="stat-sub">Nacho · sobre <span id="totalComparados">29</span> torneos c/ambos</div>
+        </div>
+        <div class="stat-card stat-card-paulo">
+            <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
+            <div class="stat-number" id="totalWinPaulo">--</div>
+            <div class="stat-sub">Paulo · sobre <span id="totalComparadosPaulo">29</span> torneos c/ambos</div>
+        </div>
+        <div class="stat-card stat-card-empate">
+            <div class="stat-title"><i class="fas fa-handshake"></i> Total Empates</div>
+            <div class="stat-number" id="totalDraws">--</div>
+            <div class="stat-sub">Empates · Igualdad de puntaje</div>
+        </div>
+        <div class="stat-card stat-card-nacho">
+            <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
+            <div class="stat-number" id="avgNacho">--</div>
+            <div class="stat-sub">Nacho · Promedio (<span id="countNacho">35</span> torneos)</div>
+        </div>
+        <div class="stat-card stat-card-paulo">
+            <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
+            <div class="stat-number" id="avgPaulo">--</div>
+            <div class="stat-sub">Paulo · Promedio (<span id="countPaulo">29</span> torneos)</div>
+        </div>
     </div>
-    
-    <!-- Tarjeta Ganados Paulo (verde) -->
-    <div class="stat-card stat-card-paulo">
-        <div class="stat-title"><i class="fas fa-trophy"></i> Total Ganados</div>
-        <div class="stat-number" id="totalWinPaulo">--</div>
-        <div class="stat-sub">Paulo · sobre <span id="totalComparadosPaulo">29</span> torneos c/ambos</div>
+
+    <!-- GRÁFICO DE EVOLUCIÓN -->
+    <div class="graph-container">
+        <canvas id="evolutionChart" width="800" height="300"></canvas>
     </div>
-    
-    <!-- Tarjeta Empates (amarillo/dorado) -->
-    <div class="stat-card stat-card-empate">
-        <div class="stat-title"><i class="fas fa-handshake"></i> Total Empates</div>
-        <div class="stat-number" id="totalDraws">--</div>
-        <div class="stat-sub">Empates · Igualdad de puntaje</div>
-    </div>
-    
-    <!-- Tarjeta Promedio Nacho (azul) -->
-    <div class="stat-card stat-card-nacho">
-        <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
-        <div class="stat-number" id="avgNacho">--</div>
-        <div class="stat-sub">Nacho · Promedio (<span id="countNacho">35</span> torneos)</div>
-    </div>
-    
-    <!-- Tarjeta Promedio Paulo (verde) -->
-    <div class="stat-card stat-card-paulo">
-        <div class="stat-title"><i class="fas fa-chart-line"></i> Puntos promedio por torneo</div>
-        <div class="stat-number" id="avgPaulo">--</div>
-        <div class="stat-sub">Paulo · Promedio (<span id="countPaulo">29</span> torneos)</div>
-    </div>
-</div>
-    <!-- Tabla histórica de torneos -->
+
     <div class="section-table">
         <div class="table-header">
             <h2><i class="fas fa-calendar-alt"></i> Torneos disputados</h2>
@@ -374,15 +381,9 @@
         <div class="table-wrapper">
             <table id="torneosTable">
                 <thead>
-                <tr>
-                    <th>Torneo</th>
-                    <th><i class="fas fa-user"></i> Nacho</th>
-                    <th><i class="fas fa-user-astronaut"></i> Paulo</th>
-                </tr>
+                <tr><th>Torneo</th><th><i class="fas fa-user"></i> Nacho</th><th><i class="fas fa-user-astronaut"></i> Paulo</th></tr>
                 </thead>
-                <tbody id="tableBody">
-                    <!-- datos cargados dinamicamente desde JS -->
-                </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>       
     </div>
@@ -392,7 +393,6 @@
 </div>
 
 <script>
-    // ---- Datos históricos basados en la tabla provista ----
     const torneosRaw = [
         { torneo: "Apertura 2008", nacho: 1029, paulo: 755 },
         { torneo: "Clausura 2009", nacho: 1165, paulo: 1062 },
@@ -429,96 +429,46 @@
         { torneo: "Primera División 2024(2)", nacho: 1201, paulo: 1477 },  
         { torneo: "Primera División 2025", nacho: 1039, paulo: 978 },  
         { torneo: "Clausura 2025", nacho: 1184, paulo: 1156 },  
-        { torneo: "Apertura 2026", nacho: 1053, paulo: 1026 },  
-        
+        { torneo: "Apertura 2026", nacho: 1053, paulo: 1026 }
     ];
 
-    // Limpiar datos: para torneo 2023, Paulo no tiene puntaje -> se excluye de sus promedios y de comparación de empates/ganados porque no disputó?
-    // Según lógica: Para cada torneo se requiere ambos puntajes para definir "ganado/empatado". En 1° División 2023, Paulo es null => no se considera para conteo de ganados/empates.
-    // Para promedio por torneo: se considera cada jugador sobre los torneos donde tiene puntaje válido.
-    // Los datos originales muestran "Total Ganados 12 Nacho - 17 Paulo" y "1 empate". Basado en estos datos debemos replicar.
-    // Pero se pide que se calculen "solos" las estadísticas -> implementamos funcion que recorre datos y obtiene:
-    // - Ganados Nacho: cantidad de torneos donde nacho > paulo (ambos definidos)
-    // - Ganados Paulo: torneos donde paulo > nacho (ambos definidos)
-    // - Empates: torneos donde nacho === paulo y ambos != null
-    // - Puntos promedio por torneo (Nacho): suma nacho sobre torneos donde nacho !== null / cantidad_torneos_con_dato_nacho
-    // - Puntos promedio por torneo (Paulo): suma paulo / cantidad_torneos_con_dato_paulo
-    // Además: validar que el empate histórico: según tabla original "Total Empates 1" porque existe el torneo clausura 2011: 1075 vs 1075 exacto.
-    // Adicionalmente verificamos otros empates? revisando: 2016/17 (2) Nacho 1163 Paulo 1179 (no empate), 2015 (1) 997 vs 995 no empate. Solo hay ese empate.
-    
     function calcularEstadisticas(torneos) {
-        let ganadosNacho = 0;
-        let ganadosPaulo = 0;
-        let empates = 0;
-        let sumaNacho = 0;
-        let sumaPaulo = 0;
-        let countNacho = 0;
-        let countPaulo = 0;
-        
+        let ganadosNacho = 0, ganadosPaulo = 0, empates = 0;
+        let sumaNacho = 0, sumaPaulo = 0, countNacho = 0, countPaulo = 0;
         for (let t of torneos) {
             const valNacho = (t.nacho !== undefined && t.nacho !== null && !isNaN(t.nacho)) ? t.nacho : null;
             const valPaulo = (t.paulo !== undefined && t.paulo !== null && !isNaN(t.paulo)) ? t.paulo : null;
-            
-            // Acumular para promedios individuales
-            if (valNacho !== null) {
-                sumaNacho += valNacho;
-                countNacho++;
-            }
-            if (valPaulo !== null) {
-                sumaPaulo += valPaulo;
-                countPaulo++;
-            }
-            
-            // Comparación solo si ambos tienen puntaje valido (para ganados/empates)
+            if (valNacho !== null) { sumaNacho += valNacho; countNacho++; }
+            if (valPaulo !== null) { sumaPaulo += valPaulo; countPaulo++; }
             if (valNacho !== null && valPaulo !== null) {
-                if (valNacho > valPaulo) {
-                    ganadosNacho++;
-                } else if (valPaulo > valNacho) {
-                    ganadosPaulo++;
-                } else {
-                    empates++;
-                }
+                if (valNacho > valPaulo) ganadosNacho++;
+                else if (valPaulo > valNacho) ganadosPaulo++;
+                else empates++;
             }
         }
-        
-        const promedioNacho = countNacho > 0 ? (sumaNacho / countNacho) : 0;
-        const promedioPaulo = countPaulo > 0 ? (sumaPaulo / countPaulo) : 0;
-        
         return {
-            ganadosNacho,
-            ganadosPaulo,
-            empates,
-            promedioNacho: Math.round(promedioNacho),
-            promedioPaulo: Math.round(promedioPaulo),
-            sumaNacho,
-            sumaPaulo,
-            countNacho,
-            countPaulo
+            ganadosNacho, ganadosPaulo, empates,
+            promedioNacho: Math.round(sumaNacho / countNacho),
+            promedioPaulo: Math.round(sumaPaulo / countPaulo),
+            countNacho, countPaulo
         };
     }
-    
-    // calcular stats
+
     const stats = calcularEstadisticas(torneosRaw);
-    
-    // Actualizar DOM de estadísticas
     document.getElementById('totalWinNacho').innerText = stats.ganadosNacho;
     document.getElementById('totalWinPaulo').innerText = stats.ganadosPaulo;
     document.getElementById('totalDraws').innerText = stats.empates;
     document.getElementById('avgNacho').innerHTML = `${stats.promedioNacho} <span style="font-size:0.8rem;">pts</span>`;
     document.getElementById('avgPaulo').innerHTML = `${stats.promedioPaulo} <span style="font-size:0.8rem;">pts</span>`;
-    
-    // Renderizar tabla completa con todos los torneos (incluyendo 2023 que Paulo es null)
+
     function renderTable(torneos) {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         torneos.forEach(t => {
             const row = tbody.insertRow();
-            // torneo
             const cellTorneo = row.insertCell(0);
             cellTorneo.className = 'tourney-cell';
             cellTorneo.innerText = t.torneo;
-            
-            // puntaje Nacho
             const cellNacho = row.insertCell(1);
             const nachoVal = (t.nacho !== undefined && t.nacho !== null) ? t.nacho : '—';
             cellNacho.innerHTML = `<span class="score">${nachoVal !== '—' ? nachoVal.toLocaleString() : '—'}</span>`;
@@ -526,8 +476,6 @@
                 cellNacho.style.backgroundColor = '#e0f2fe';
                 cellNacho.style.borderRadius = '12px';
             }
-            
-            // puntaje Paulo
             const cellPaulo = row.insertCell(2);
             const pauloVal = (t.paulo !== undefined && t.paulo !== null) ? t.paulo : '—';
             cellPaulo.innerHTML = `<span class="score">${pauloVal !== '—' ? pauloVal.toLocaleString() : '—'}</span>`;
@@ -535,15 +483,8 @@
                 cellPaulo.style.backgroundColor = '#dcfce7';
                 cellPaulo.style.borderRadius = '12px';
             }
-            
-            // opcional: agregar ícono de ganador/empate en una columna de detalle? se puede dejar visual.
             if (t.nacho !== null && t.paulo !== null && t.nacho === t.paulo) {
-                const empateSpan = document.createElement('span');
-                empateSpan.className = 'winner-badge';
-                empateSpan.innerHTML = '<i class="fas fa-handshake"></i> Empate';
-                // agregar en celda torneo sutilmente
-                const existingText = cellTorneo.innerText;
-                cellTorneo.innerHTML = `${existingText} <span style="font-size:0.7rem; background:#eef2ff; padding:2px 6px; border-radius:20px; margin-left:6px;"><i class="fas fa-equals"></i> empate</span>`;
+                cellTorneo.innerHTML += `<span style="font-size:0.7rem; background:#eef2ff; padding:2px 6px; border-radius:20px; margin-left:6px;"><i class="fas fa-equals"></i> empate</span>`;
             } else if (t.nacho !== null && t.paulo !== null && t.nacho > t.paulo) {
                 cellNacho.innerHTML += ` <i class="fas fa-crown" style="color:#f59e0b; font-size:0.7rem;"></i>`;
             } else if (t.nacho !== null && t.paulo !== null && t.paulo > t.nacho) {
@@ -551,62 +492,108 @@
             }
         });
     }
-    
+
     renderTable(torneosRaw);
 
-   // PRIMERO defino las variables
-const totalTorneosAmbos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null).length;
-const totalTorneosNacho = torneosRaw.filter(t => t.nacho !== null).length;
-const totalTorneosPaulo = torneosRaw.filter(t => t.paulo !== null).length;
+    const totalTorneosAmbos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null).length;
+    const totalTorneosNacho = torneosRaw.filter(t => t.nacho !== null).length;
+    const totalTorneosPaulo = torneosRaw.filter(t => t.paulo !== null).length;
 
-// LUEGO las uso
-document.getElementById('totalComparados').innerText = totalTorneosAmbos;
-document.getElementById('totalComparadosPaulo').innerText = totalTorneosAmbos;
-document.getElementById('countNacho').innerText = totalTorneosNacho;
-document.getElementById('countPaulo').innerText = totalTorneosPaulo;
-    
-    // Mejorar la card de promedios mostrando cantidad de torneos considerados
-    const avgNachoElement = document.getElementById('avgNacho');
-    const avgPauloElement = document.getElementById('avgPaulo');
+    document.getElementById('totalComparados').innerText = totalTorneosAmbos;
+    document.getElementById('totalComparadosPaulo').innerText = totalTorneosAmbos;
+    document.getElementById('countNacho').innerText = totalTorneosNacho;
+    document.getElementById('countPaulo').innerText = totalTorneosPaulo;
+
+    // Actualizar subtítulos
     const subNacho = document.querySelector('#statsPanel .stat-card:nth-child(4) .stat-sub');
     const subPaulo = document.querySelector('#statsPanel .stat-card:nth-child(5) .stat-sub');
     if (subNacho) subNacho.innerHTML = `Nacho · Promedio (${totalTorneosNacho} torneos)`;
     if (subPaulo) subPaulo.innerHTML = `Paulo · Promedio (${totalTorneosPaulo} torneos)`;
     
-    // También actualizar subtítulos de ganados con base en partidos compartidos
-    const totalComparados = totalTorneosAmbos;
     const ganadosNachoSub = document.querySelector('#statsPanel .stat-card:first-child .stat-sub');
     const ganadosPauloSub = document.querySelector('#statsPanel .stat-card:nth-child(2) .stat-sub');
-    if(ganadosNachoSub) ganadosNachoSub.innerHTML = `Nacho · sobre ${totalComparados} torneos c/ambos`;
-    if(ganadosPauloSub) ganadosPauloSub.innerHTML = `Paulo · sobre ${totalComparados} torneos c/ambos`;
-    const empatesSub = document.querySelector('#statsPanel .stat-card:nth-child(3) .stat-sub');
-    if(empatesSub) empatesSub.innerHTML = `Empates · Igualdad de puntaje`;
-    
-    // Bonus: Asegurar que si alguien inspecciona vea claramente que los datos coinciden con el excel inicial.
-    // Ajuste final para redondear decimales bien representados: stats.promedioNacho viene con .toFixed(2)
-    // Para Paulo calcularlo nuevamente pero ya fue hecho, validamos con decimales.
-    
-    // Mostrar también un pequeño detalle con total de torneos jugados por cada uno.
+    if(ganadosNachoSub) ganadosNachoSub.innerHTML = `Nacho · sobre ${totalTorneosAmbos} torneos c/ambos`;
+    if(ganadosPauloSub) ganadosPauloSub.innerHTML = `Paulo · sobre ${totalTorneosAmbos} torneos c/ambos`;
+
     const footerMsg = document.querySelector('footer');
     if(footerMsg) {
         const extraSpan = document.createElement('div');
         extraSpan.style.marginTop = '8px';
         extraSpan.style.fontSize = '0.7rem';
-        extraSpan.innerHTML = `<i class="fas fa-database"></i> Registros: Nacho participó en ${totalTorneosNacho} torneos · Paulo en ${totalTorneosPaulo} torneos · Enfrentamientos directos: ${totalComparados}`;
+        
         footerMsg.appendChild(extraSpan);
     }
-    
-    // Agregar micro-interacción: tooltips al pasar sobre números de estadísticas
-    const tooltipElements = document.querySelectorAll('.stat-number');
-    tooltipElements.forEach(el => {
-        el.setAttribute('title', 'Calculado automáticamente en base al historial');
+
+    // ========== GRÁFICO ==========
+    const torneosConDatos = torneosRaw.filter(t => t.nacho !== null && t.paulo !== null);
+    const labels = torneosConDatos.map(t => t.torneo);
+    const nachoData = torneosConDatos.map(t => t.nacho);
+    const pauloData = torneosConDatos.map(t => t.paulo);
+
+    const ctx = document.getElementById('evolutionChart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Nacho',
+                    data: nachoData,
+                    borderColor: '#0284c7',
+                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#0284c7'
+                },
+                {
+                    label: 'Paulo',
+                    data: pauloData,
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#16a34a'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.dataset.label}: ${context.raw} pts`
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }
+                }
+            },
+            scales: {
+                y: {
+                    title: { display: true, text: 'Puntaje', color: getComputedStyle(document.body).getPropertyValue('--text-color') }
+                },
+                x: {
+                    ticks: { maxRotation: 45, minRotation: 45 }
+                }
+            }
+        }
     });
-    
-    // Validación final: mostrar que el cálculo de empates dio 1 (el torneo Clausura 2011). Verificamos que efectivamente es 1.
-    // También los totales ganados: Nacho 12 y Paulo 17 en dataset original verificar (opcionalmente depurar).
-    // Coincide con la fuente. Siendo fieles a los datos: vamos a loguear en consola para transparencia.
-    console.log('Estadísticas calculadas automáticamente:', stats);
-    console.log('Torneos con ambos participantes:', totalComparados);
+
+    // ========== MODO OSCURO ==========
+    const darkToggle = document.getElementById('darkModeToggle');
+    darkToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        darkToggle.innerHTML = document.body.classList.contains('dark') ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        
+        // Actualizar colores del gráfico para modo oscuro
+        const isDark = document.body.classList.contains('dark');
+        const textColor = isDark ? '#e2e8f0' : '#0f172a';
+        chart.options.plugins.legend.labels.color = textColor;
+        chart.options.scales.y.title.color = textColor;
+        chart.update();
+    });
 </script>
 </body>
 </html>
